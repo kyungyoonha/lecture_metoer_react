@@ -1,22 +1,19 @@
 import React, { useEffect, useState } from 'react';
+import { Meteor } from 'meteor/meteor'
 import _ from 'lodash'
 import { Transition, animated } from 'react-spring/renderprops';
+import { withTracker } from 'meteor/react-meteor-data';
 
 import { Target } from './Target';
+import { GameCollection } from '../api/game.collection';
 const AnimatedTarget = animated(Target);
 
-export const App = () => {
+const App = ({ game }) => {
   const [state, setState] = useState({ 
     x: 0, 
     y: 0, 
-    targets: [
-      { _id: 1, x: 300, y: 300, size: 100 },
-      { _id: 2, x: 500, y: 300, size: 150 },
-      { _id: 3, x: 500, y: 500, size: 200 },
-      { _id: 4, x: 300, y: 500, size: 300 },
-    ]
   })
-  const { x, y, targets } = state;
+  const { x, y } = state;
 
   useEffect(() => {
     let isPointerLocked = false;
@@ -44,7 +41,6 @@ export const App = () => {
         view.y = y;
       }
     }
-
     // window.requestAnimtaionFrame 은 애니메이션을 위한 비동기 함수
     // 비동기 함수이고 스스로를 호출하지 않기 때문에 재귀적으로 window.requestAnimationFrame을 다시 실행해줘야한다.
     // 기본적으로 1 초에 60번, 보통은 모니터 주사율에 맞추어 함수를 실행하게 해준다.
@@ -70,14 +66,14 @@ export const App = () => {
     }
   } , [])
 
-
+  // console.log(game)
   return(
     <>  
         <div className="crosshair" />
     
       <Transition 
         native // 자식 컴포넌트에 Animated 사용시 넣어줘야한다.
-        items={targets}
+        items={game.targets}
         keys={(target) => target._id}
         from={{ scale: 0 }}
         enter={{ scale: 1 }}
@@ -90,14 +86,9 @@ export const App = () => {
             return <AnimatedTarget 
               style={props} 
               key={target._id} 
-              onClick={() => {
-
-                setState({
-                  ...state,
-                  targets: state.targets.filter(item => item._id !== target._id)
-                })
-                
-              }} 
+              onClick={() => 
+                Meteor.call("game.targetHit", game._id, target._id )
+              } 
               x={target.x-x} 
               y={target.y-y} 
               size={target.size}
@@ -109,7 +100,10 @@ export const App = () => {
   )
 }
 
-
+export const AppWithTracekr = withTracker(({ gameId })=> {
+  const game = GameCollection.findOne({ _id: gameId }) || { targets: []}; 
+  return { game }
+})(App)
 // export class App extends Component {
 //   state = { 
 //     x: 0, 

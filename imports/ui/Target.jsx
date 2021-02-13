@@ -44,7 +44,7 @@ import React , { Component, useEffect, useCallback } from 'react';
 //     }
 // }
 
-export const Target = ({ style, size, x, y, onClick }) => {
+export const Target = React.forwardRef(({ style, size, x, y, onClick }, ref) => {
     x = x * (size / 100);
     y = y * (size / 100);
 
@@ -73,5 +73,5 @@ export const Target = ({ style, size, x, y, onClick }) => {
 
     
     return <div className="target"  style={{ zIndex: size, width: size, height: size, transform: `translate3d(${x}px, ${y}px, 0) scale(${style.scale})`}} />
-}
+})
 
