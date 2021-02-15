@@ -70,6 +70,15 @@ export const Target = React.forwardRef(({ style, size, x, y, onClick }, ref) => 
 
 
     
-    return <div className="target"  style={{ zIndex: size, width: size, height: size, transform: `translate3d(${x}px, ${y}px, 0) scale(${style.scale})`}} />
+    return <div 
+        className="target"  
+        style={{ 
+            backgroundColor: style.color || 'white', 
+            zIndex: size, 
+            width: size, 
+            height: size, 
+            transform: `translate3d(${x}px, ${y}px, 0) scale(${style.scale})`
+        }} 
+    />
 })
 

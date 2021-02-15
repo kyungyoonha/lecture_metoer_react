@@ -7,6 +7,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import { Target } from './Target';
 import { GameCollection } from '../api/game.collection';
 import { PlayerNameForm } from './PlayerNameForm';
+import { PlayerList } from './PlayerList';
 const AnimatedTarget = animated(Target);
 
 const App = ({ game }) => {
@@ -15,7 +16,7 @@ const App = ({ game }) => {
     x: 0, 
     y: 0, 
   })
-  const { x, y, playerId,  } = state;
+  const { x, y, playerId } = state;
   
   useEffect(() => {
     // 1초마다핑을 보낸다.
@@ -57,7 +58,6 @@ const App = ({ game }) => {
     // 기본적으로 1 초에 60번, 보통은 모니터 주사율에 맞추어 함수를 실행하게 해준다.
     // 모니터의 평균 주사율이 60FPS 이라면 1초에 60번 실행한다.
     let animation = () => {
-      // console.log(x, view.x, y, view.y)
       if(x !== temp_x || y !== temp_y ) setState(prev => ({ ...prev, x: temp_x, y: temp_y }))
       window.requestAnimationFrame(animation);
         // 프레임에 맞춰서 setState를 해주므로 프레임이 낮아져서 끊기는 현상이 없어진다.
@@ -83,13 +83,13 @@ const App = ({ game }) => {
   return(
     <>  
       <div className="crosshair" />
-
+      <PlayerList players={game.players} />
       {playerId ? (
         <Transition 
-          native // 자식 컴포넌트에 Animated 사용시 넣어줘야한다.
+          native // 자식 컴포넌트에 Animated 사용시 넣어줘야한다. Will skip rendering the component if true and write to the dom directly
           items={game.targets}
           keys={(target) => target._id}
-          from={{ scale: 0 }}
+          from={{ scale: 1 }}
           enter={{ scale: 1 }}
           leave={{ scale: 0 }}
         >
@@ -98,7 +98,7 @@ const App = ({ game }) => {
             // scale leave될때 0으로 바뀌는데 매초마다 prop값을 1부터 0까지 줄여주면서 밑에 Target컴포넌트를 리렌더링 하므로 렉이 걸리기 시작한다.
             return (props) => { 
               return <AnimatedTarget 
-                style={props} 
+                style={{ ...props, color: target.color }} 
                 key={target._id} 
                 onClick={() => 
                   Meteor.call("game.targetHit", game._id, target._id, playerId )
@@ -110,6 +110,7 @@ const App = ({ game }) => {
             }
           }}
         </Transition>
+        
       ) 
       : <PlayerNameForm onSubmit={name => Meteor.call('game.addPlayer', game._id, name, (err, playerId) => {
         setState({

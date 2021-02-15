@@ -9,6 +9,12 @@ if (Meteor.isServer) {
     }, 1000);
 }
 
+const Colors = [
+    "#55ff89", // green
+    "#ff5558", // red
+    "#5570ff", // blue
+];
+
 Meteor.methods({
     "game.create"() {
         return GameCollection.insert({
@@ -31,35 +37,38 @@ Meteor.methods({
             _id: game.lastPlayerId + 1,
             name: playerName,
             score: 0,
+            color: Colors[game.lastPlayerId % Colors.length],
         };
 
         game.players.push(newPlayer);
         game.lastPlayerId = newPlayer._id;
         GameCollection.update({ _id: gameId }, { $set: game });
-
         return newPlayer._id;
     },
     "game.targetHit"(gameId, targetId, playerId) {
         const game = GameCollection.findOne({ _id: gameId });
         const targetIndex = _.findIndex(game.targets, { _id: targetId });
-
-        const targetHit = game.targets[targetIndex];
-
         const playerIndex = _.findIndex(game.players, { _id: playerId });
 
-        const score = Math.round((1 / targetHit.size) * 10000);
-        game.players[playerIndex].score += score;
+        if (targetIndex > -1) {
+            const targetHit = game.targets[targetIndex];
+            game.targets.splice(targetIndex, 1);
 
-        game.targets.splice(targetIndex, 1);
+            const score = Math.round((1 / targetHit.size) * 10000);
+            game.players[playerIndex].score += score;
+        }
 
-        const newTarget = {
-            _id: game.lastTargetId + 1,
-            x: _.random(0, 600),
-            y: _.random(0, 600),
-            size: _.random(100, 500),
-        };
-        game.targets.push(newTarget);
-        game.lastTargetId = newTarget._id;
+        if (Meteor.isServer && targetIndex > -1) {
+            const newTarget = {
+                _id: game.lastTargetId + 1,
+                x: _.random(0, 600),
+                y: _.random(0, 600),
+                size: _.random(100, 500),
+                color: game.players[playerIndex].color, // 맞춘 유저의 색으로 변경
+            };
+            game.targets.push(newTarget);
+            game.lastTargetId = newTarget._id;
+        }
 
         GameCollection.update({ _id: game._id }, { $set: game });
     },
