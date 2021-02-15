@@ -22,7 +22,6 @@ import React , { Component, useEffect, useCallback } from 'react';
 //         // 타켓 원과 십자가의 중심 거리가 타겟원의 반지름 보다 큰 경우 클릭 안됌
 //         // 타켓 원과 십자가의 중심 거리가 타겟원의 반지름 보다 작거나 같은 경우 클릭 됌
 //         let d = Math.sqrt(Math.pow(cx - wx, 2) +  Math.pow(cy - wy, 2))
-//         console.log({ wx, wy, cx, cy})
 //         if (d <= r){
 //             console.log('clicking', d)
 //         }
@@ -60,7 +59,6 @@ export const Target = React.forwardRef(({ style, size, x, y, onClick }, ref) => 
         // 타켓 원과 십자가의 중심 거리가 타겟원의 반지름 보다 작거나 같은 경우 클릭 됌
         let d = Math.sqrt(Math.pow(cx-wx, 2) +  Math.pow(cy-wy,2))
         if (d <= r){
-            console.log('clicking', size, d)
             onClick('good', size, d)
         }
     }

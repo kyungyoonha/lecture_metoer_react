@@ -26,3 +26,26 @@ body {
   border-radius: 50%;
   z-index: 9999;
 }
+
+.name-form {
+  border-radius: 20px;
+  background-color: white;
+  padding: 1rem;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);  
+}
+
+.name-form input {
+  font-size: 30px;
+  padding: 10px 16px;
+  display: block;
+  box-sizing: 2px solid;
+  border: 2px solid;
+  border-radius: 20px;
+  outline: 0;
+}
+
+
+
